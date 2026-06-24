@@ -1,127 +1,163 @@
-# 🎬 AI YouTube Shorts Automation — The AI Pixel
+<div align="center">
 
-A fully automated YouTube Shorts publishing system built with **n8n** that
-handles everything from topic ideation to video upload — with zero manual
-work after setup.
+# 🎬 AI YouTube Shorts Automation System
 
-> Built in under 24 hours. 4 Shorts published automatically on Day 1.
+### *From Zero to Published — Fully Automated, Zero Human Involvement*
 
----
+![n8n](https://img.shields.io/badge/n8n-Self%20Hosted-orange?style=for-the-badge)
+![Groq](https://img.shields.io/badge/Groq-LLM-blue?style=for-the-badge)
+![YouTube](https://img.shields.io/badge/YouTube-API%20v3-red?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Live%20%26%20Running-brightgreen?style=for-the-badge)
 
-## 🧠 Workflow Architecture
+**4 Shorts Auto-Published on Day 1 — Built in Under 24 Hours**
 
-![n8n Workflow Canvas](n8n-canvas.png)
-
-The system runs across 5 phases — Ideation, Production, Storage, Editing,
-and Publishing — all connected inside a single n8n workflow with 16 nodes
-working in sequence.
+</div>
 
 ---
 
-## 🔄 How It Works — Phase by Phase
+## 🚀 What This System Does
 
-### 🧠 Phase 1 — The AI Brain (Ideation & Planning)
+This is not a demo. This is a **production-level content automation pipeline** that wakes up every day at a scheduled time, thinks of a topic, writes a script, records a voiceover, finds a video, edits everything together, and publishes a YouTube Short — all without me touching anything.
 
-| Node | Role | What It Does |
-|------|------|-------------|
-| ⏱️ Schedule Trigger | Ignition Switch | Starts the entire workflow automatically at the set time — no manual clicks needed |
-| 🤖 Topic Generator Agent | Creative Director | Uses Groq LLM to generate a unique, trending topic for today's Short |
-| ✍️ Script Writer Agent | Content Writer | Writes a highly engaging 30-second script based on the topic to hook the audience |
-| 🔍 SEO Metadata Agent | SEO Expert | Reads the script and generates viral YouTube Title, Description, and Hashtags |
-| ⚙️ Parse Metadata | Data Cleaner | Cleans the AI JSON output and separates title, tags, and script for next nodes |
-
-### 🎬 Phase 2 — The Production House (Sourcing & Voice)
-
-| Node | Role | What It Does |
-|------|------|-------------|
-| 🌐 Fetch Pexels Video | Stock Scout | Hits Pexels API and finds a high-quality background video matching the topic |
-| 🔗 Extract Video URL | Link Extractor | Pulls only the direct .mp4 link from Pexels response data |
-| 📥 HTTP Request | Video Downloader | Downloads the actual video file into n8n for processing |
-| 🎙️ ElevenLabs TTS | Voice Artist | Converts the AI script into a professional human-like voiceover |
-
-### 🗄️ Phase 3 — The Memory & Backup (Storage)
-
-| Node | Role | What It Does |
-|------|------|-------------|
-| 📁 Save Audio to Drive | Cloud Backup | Uploads generated audio/video files to Google Drive automatically |
-| 📊 Log to Google Sheets | Digital Ledger | Saves Date, Topic, Script, Title, and Drive links — full monthly record |
-
-### 🎞️ Phase 4 — The Editor (Video Assembly)
-
-| Node | Role | What It Does |
-|------|------|-------------|
-| 🎥 Creatomate | Video Editor | Merges Pexels video + ElevenLabs audio + adds dynamic auto-captions using template |
-| ⏳ Wait Node | Buffer | Pauses workflow while Creatomate renders — prevents errors from early fetch |
-| 🌐 HTTP Request 2 | Final Fetcher | Goes back to Creatomate and retrieves the fully rendered .mp4 file |
-
-### 🚀 Phase 5 — The Publisher (Delivery & Alert)
-
-| Node | Role | What It Does |
-|------|------|-------------|
-| ▶️ Upload a Video | YouTube Publisher | Uploads final video with SEO title and description directly to YouTube as a Short |
-| 📲 Send a Text Message | Telegram Alert | Sends a formatted notification with Upload Time, Topic, Script, YouTube Link and Drive Backup |
+Every single step that a human content creator does manually — ideation, scripting, SEO, voiceover, video editing, uploading — this system does automatically.
 
 ---
 
-## 🖼️ Screenshots
+## 🖼️ Proof It Works
 
-### n8n Workflow Canvas — All 16 Nodes
-![n8n Canvas](n8n-canvas.png)
+### YouTube Studio — 4 Shorts Published on Day 1
+![YouTube Studio](upload-proof.png)
 
-### YouTube Studio — Published Shorts
-![Upload Proof](upload-proof.png)
-
-### Telegram — Confirmation Message
+### Telegram — Live Notification After Every Upload
 ![Telegram Confirmation](telegram-confirmation-messege.jpeg)
 
-### Google Sheets — Content Log
-![Google Sheets](google-sheet.png)
+### n8n — Full 16-Node Workflow Canvas
+![n8n Canvas](n8n-canvas.png)
 
-### Google Drive — Audio Backups
+### Google Sheets — Automatic Content Log
+![Google Sheets Log](google-sheet.png)
+
+### Google Drive — Audio Backup Folder
 ![Drive Audios](drive-audios.png)
 
 ---
 
-## 🛠️ Full Tech Stack
+## 🧠 System Architecture — 5 Phases, 16 Nodes
+
+The entire pipeline is divided into 5 intelligent phases. Each phase has a specific job and passes its output to the next one automatically.
+
+---
+
+### Phase 1 — The AI Brain 🧠
+*This phase is the creative director of the channel*
+
+**Schedule Trigger**
+The ignition switch of the entire system. Set it once — it fires automatically every day at the configured time. No alarms, no manual clicks, nothing.
+
+**Topic Generator Agent — Groq LLM**
+The first AI agent that decides what today's video will be about. It thinks like a content strategist — picking topics that are trending, engaging, and relevant to the channel niche.
+
+**Script Writer Agent — Groq LLM**
+Once the topic is decided, this agent writes the complete Short script. The script is designed to hook the viewer in the first 3 seconds, deliver value fast, and end with a call to action — all within 30 seconds of read time.
+
+**SEO Metadata Agent — Groq LLM**
+This agent reads the final script and generates everything YouTube needs to rank the video — a viral title, keyword-rich description, and relevant hashtags. Pure SEO, automated.
+
+**Parse Metadata — Code Node**
+The AI returns everything in JSON format. This node cleans and separates that data so every downstream node gets exactly what it needs — title here, tags there, script separately.
+
+---
+
+### Phase 2 — The Production House 🎬
+*This phase sources all media assets*
+
+**Fetch Pexels Video — HTTP Request**
+Hits the Pexels API with the video topic as a search query and retrieves a list of high-quality, royalty-free stock videos that match the content.
+
+**Extract Video URL — Code Node**
+Pexels returns a large JSON object with multiple video qualities. This node intelligently picks the best quality `.mp4` link and passes only that forward.
+
+**Download Video — HTTP Request**
+Goes to that direct link and downloads the actual video file into the n8n workflow memory for processing.
+
+**ElevenLabs TTS — HTTP Request**
+The professional voiceover artist. Takes the Groq-written script and sends it to ElevenLabs, which returns a studio-quality, human-like audio file — no robotic voice, no text-to-speech artifacts.
+
+---
+
+### Phase 3 — The Memory & Backup 🗄️
+*This phase makes sure nothing is ever lost*
+
+**Save Audio to Drive — Google Drive**
+Every generated audio and video file is automatically backed up to a dedicated Google Drive folder (`n8n-audios`). The Drive link is sent in the Telegram notification so the file is always accessible.
+
+**Log to Google Sheets — Google Sheets**
+Every execution is logged — Date, Topic, Script, YouTube Title, Description, Tags, and Drive links — all saved automatically. A complete content archive builds itself over time.
+
+---
+
+### Phase 4 — The Video Editor 🎞️
+*This is where the magic happens — raw assets become a finished Short*
+
+**Creatomate — HTTP Request**
+The video editor of the pipeline. It receives the Pexels stock video, the ElevenLabs voiceover audio, and the script text. Using a pre-configured template, it merges the video and audio together and dynamically burns **auto-captions** onto the screen — making the Short accessible, engaging, and algorithm-friendly.
+
+**Wait Node**
+Video rendering takes time. This node pauses the workflow for a set duration to let Creatomate finish rendering before the next node tries to fetch the output — preventing timing errors completely.
+
+**Fetch Final Video — HTTP Request**
+After the wait, this node goes back to Creatomate, confirms the render is complete, and downloads the final fully-edited `.mp4` file — ready for YouTube.
+
+---
+
+### Phase 5 — The Publisher 🚀
+*This phase delivers the content to the world*
+
+**Upload a Video — YouTube Data API v3**
+Takes the final video file along with the AI-generated title, description, and tags — and publishes it directly to YouTube as a Short. Public. Live. Done.
+
+**Send a Text Message — Telegram Bot**
+The moment the video goes live, a beautifully formatted Telegram notification fires with the Upload Time, Topic, Script, YouTube link, and Drive backup link — all in one message.
+
+---
+
+## 🛠️ Tech Stack
 
 | Tool | Purpose | Cost |
 |------|---------|------|
-| n8n (Self Hosted) | Workflow automation engine | Free |
-| Groq LLM (llama3-70b) | Topic, Script & SEO generation | Free |
-| Pexels API | Stock video sourcing | Free |
-| ElevenLabs | Text to Speech voiceover | Free (10k chars/month) |
-| Creatomate | Video + audio merging + auto captions | Paid/Trial |
-| YouTube Data API v3 | Auto video upload | Free |
-| Google Drive API | Audio/video cloud backup | Free |
-| Google Sheets API | Content logging and tracking | Free |
-| Telegram Bot API | Upload confirmation notifications | Free |
+| n8n (Self Hosted) | Core automation engine — all 16 nodes | Free |
+| Groq LLM (llama3-70b) | Topic generation, script writing, SEO | Free |
+| Pexels API | Royalty-free stock video sourcing | Free |
+| ElevenLabs | Human-like AI voiceover generation | Free (10k chars/month) |
+| Creatomate | Video + audio merging + auto-captions | Trial |
+| YouTube Data API v3 | Direct video upload to channel | Free |
+| Google Drive API | Cloud backup for all generated files | Free |
+| Google Sheets API | Automatic content logging and tracking | Free |
+| Telegram Bot API | Real-time upload notifications | Free |
 
 ---
 
-## ✨ Key Features
+## ✨ What Makes This Different
 
-- ✅ Fully automated — zero manual work after setup
-- ✅ AI generates unique topic, script, and SEO metadata daily
-- ✅ Professional human-like voiceover via ElevenLabs
-- ✅ High-quality stock video sourced automatically from Pexels
-- ✅ Auto-captions added to every Short via Creatomate
-- ✅ Published directly to YouTube with SEO-optimized metadata
-- ✅ Every Short backed up to Google Drive
-- ✅ Complete content log in Google Sheets
-- ✅ Instant Telegram notification with YouTube link on every upload
+Most automation projects are tutorials or demos. This one is different:
+
+- **Actually published videos** — 4 Shorts went live on YouTube on Day 1
+- **Self-hosted n8n with HTTPS** — not a cloud trial, a real server with SSL
+- **9 APIs connected** — each one doing a specific job in the pipeline
+- **Auto-captions** — most automation skips this; this system adds them automatically
+- **Complete backup system** — Drive + Sheets means no content is ever lost
+- **Built in under 24 hours** — from idea to 4 published videos in one day
 
 ---
 
-## 📊 Proof of Working
-
-**Day 1 Results — 4 Shorts Published Automatically:**
+## 📊 Day 1 Results
 
 | Short Title | Status | Date |
 |-------------|--------|------|
 | The Top 5 Weird AI-Generated Art Styles That Will Blow Your Mind | ✅ Published | Jun 24, 2026 |
-| The Hidden Dangers of Overusing AI-Generated Music | ✅ Published | Jun 24, 2026 |
+| The Hidden Dangers of Overusing AI-Generated Music in Creative Projects | ✅ Published | Jun 24, 2026 |
 | 10 Simple Life Hacks to Boost Your Morning Productivity | ✅ Published | Jun 24, 2026 |
-| The Dark Side of AI: 3 Surprising Ways AI Can Manipulate | ✅ Published | Jun 24, 2026 |
+| The Dark Side of AI: 3 Surprising Ways AI Can Manipulate You | ✅ Published | Jun 24, 2026 |
 
 ---
 
@@ -129,82 +165,103 @@ working in sequence.
 
 ```
 ai-youtube-shorts-automation/
-├── workflow.json                      → Importable n8n workflow (16 nodes)
-├── n8n-canvas.png                     → Full workflow canvas screenshot
-├── upload-proof.png                   → YouTube Studio showing published Shorts
-├── telegram-confirmation-messege.jpeg → Telegram notification screenshot
-├── google-sheet.png                   → Content log in Google Sheets
-├── drive-audios.png                   → Audio backups in Google Drive
-└── README.md                          → Project documentation
+├── workflow.json                        → Complete importable n8n workflow (16 nodes)
+├── n8n-canvas.png                       → Full workflow canvas showing all connections
+├── upload-proof.png                     → YouTube Studio proof of 4 published Shorts
+├── telegram-confirmation-messege.jpeg   → Live Telegram notification screenshot
+├── google-sheet.png                     → Auto content log in Google Sheets
+├── drive-audios.png                     → Audio backup folder in Google Drive
+└── README.md                            → Full project documentation
 ```
 
 ---
 
-## 📦 Setup Instructions
+## 📦 Setup Guide
 
-### Step 1 — Accounts & API Keys Needed
-- **Groq** — free at console.groq.com
-- **Pexels API** — free at pexels.com/api
-- **ElevenLabs** — free at elevenlabs.io (10k chars/month)
-- **Creatomate** — creatomate.com (for video rendering + captions)
-- **Google Cloud** — enable YouTube Data API v3 + Google Drive API + Google Sheets API
-- **Telegram Bot** — create via @BotFather
+### Prerequisites
+- A server or VPS (DigitalOcean, Railway, Oracle Cloud)
+- A domain name with HTTPS/SSL (required for Google & Telegram OAuth)
+- Accounts on: Groq, Pexels, ElevenLabs, Creatomate, Google Cloud, Telegram
 
-### Step 2 — Self Host n8n
+### Step 1 — Self Host n8n with HTTPS
 ```bash
+# Install n8n via Docker
 docker run -d \
   --name n8n \
   -p 5678:5678 \
   -v n8n_data:/home/node/.n8n \
   n8nio/n8n
+
+# Add SSL via Nginx + Certbot (Let's Encrypt)
+# This is required for Google OAuth and Telegram webhooks to work
 ```
-Add SSL (HTTPS) via Nginx + Let's Encrypt for Google & Telegram OAuth to work.
+
+### Step 2 — Enable Google APIs
+Go to console.cloud.google.com and enable:
+- YouTube Data API v3
+- Google Drive API
+- Google Sheets API
+- Create OAuth 2.0 credentials for each
 
 ### Step 3 — Import Workflow
 1. Open your n8n instance
-2. Click **"New Workflow"**
-3. Click **"..."** → **"Import from file"**
-4. Select `workflow.json`
+2. New Workflow → `...` → Import from file
+3. Select `workflow.json`
 
-### Step 4 — Add Credentials
-Connect these in n8n Settings → Credentials:
-- Groq API Key
-- Pexels API Key (in HTTP Request node header)
-- ElevenLabs API Key (in HTTP Request node header)
-- Creatomate API Key
-- Google Drive OAuth2
-- Google Sheets OAuth2
-- YouTube OAuth2
-- Telegram Bot Token
+### Step 4 — Add All Credentials in n8n
+| Credential | Where to Get |
+|-----------|-------------|
+| Groq API Key | console.groq.com |
+| Pexels API Key | pexels.com/api |
+| ElevenLabs API Key | elevenlabs.io → Settings → API Keys |
+| Creatomate API Key | creatomate.com → Account |
+| Google Drive OAuth2 | Google Cloud Console |
+| Google Sheets OAuth2 | Google Cloud Console |
+| YouTube OAuth2 | Google Cloud Console |
+| Telegram Bot Token | @BotFather on Telegram |
 
-### Step 5 — Configure Nodes
-- Update your **Telegram Chat ID** in the Send Message node
-- Update your **Google Sheet ID** in the Log node
-- Update your **Creatomate Template ID** in the Creatomate node
-- Set your preferred **schedule time** in the Schedule Trigger node
+### Step 5 — Update These Fields
+- Telegram Chat ID → in Send Message node
+- Google Sheet ID → in Log to Sheets node
+- Creatomate Template ID → in Creatomate node
+- Schedule time → in Schedule Trigger node
 
-### Step 6 — Activate & Test
-- Turn on the workflow toggle
-- Click **"Execute Workflow"** to test manually first
-- Check Telegram for confirmation
-- Check YouTube Studio for the uploaded Short
+### Step 6 — Activate
+Toggle the workflow ON and run it once manually to test. Check Telegram for the notification and YouTube Studio for the uploaded Short.
 
 ---
 
-## 🎯 Purpose
+## 🎯 Skills Demonstrated
 
-This project was built to demonstrate advanced automation skills including:
-- Multi-phase AI pipeline design (16 nodes)
-- Integration of 9 different APIs in one workflow
-- Real content production automation (not just a demo)
-- Self-hosted n8n with HTTPS setup
-- End-to-end media processing (script → voice → video → publish)
+This project was built to demonstrate real, production-level skills:
+
+| Skill | How It Shows |
+|-------|-------------|
+| AI Agent Design | 3 separate Groq agents with specific roles and prompts |
+| Prompt Engineering | Each agent has a carefully designed system prompt |
+| API Integration | 9 different APIs connected and working together |
+| Self-Hosted Infrastructure | n8n running on own server with SSL/HTTPS |
+| Media Processing Automation | Audio generation + video merging + caption burning |
+| Data Pipeline Design | 16 nodes passing structured data in sequence |
+| Error Handling | Wait node prevents timing errors; Parse node handles JSON |
+| Content Strategy Automation | Full ideation to publish pipeline |
 
 ---
 
 ## 👤 Author
 
 **Mian Rehan** — AI Automation Developer
+
+Student | Building real-world AI automation systems | Open to Internships & Freelance
+
 [LinkedIn](https://www.linkedin.com/in/muhammad-rehan/) |
 [GitHub](https://github.com/mianrehan05911-alt) |
-[YouTube Channel](https://youtube.com/@TheAIPixel)
+[YouTube — The AI Pixel](https://youtube.com/@TheAIPixel)
+
+---
+
+<div align="center">
+
+*Built with curiosity, zero budget, and unlimited time.*
+
+</div>
