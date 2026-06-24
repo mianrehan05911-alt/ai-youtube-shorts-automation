@@ -1,0 +1,682 @@
+{
+  "name": "AI YouTube Shorts Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        112,
+        -176
+      ],
+      "id": "9f5003a2-c741-40db-b17d-c7c6689a01d0",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Generate a YouTube Shorts topic for today",
+        "options": {
+          "systemMessage": "You are a YouTube Shorts content strategist. Generate ONE interesting and trending topic for a YouTube Short. The topic should be from one of these categories (rotate daily): Tech Facts, Life Hacks, Science Facts, History Facts, Psychology Facts, Motivation, AI & Technology. Output ONLY the topic in one line. No explanation. No extra text. Example output: 5 Mind-Blowing Facts About Black Holes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        336,
+        -176
+      ],
+      "id": "9a82e678-567f-4117-b5cc-afc525502987",
+      "name": "Topic Generator Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        416,
+        48
+      ],
+      "id": "31cdb4a1-8d5c-4ced-a354-71d72a47832f",
+      "name": "Groq Model 1",
+      "credentials": {
+        "groqApi": {
+          "id": "wqVGa5VaIHCE0F2H",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write a YouTube Shorts script about this topic: {{ $json.output }}",
+        "options": {
+          "systemMessage": "You are an expert YouTube Shorts script writer. Write a highly engaging script that is maximum 30 seconds when read aloud (exactly between 60 to 70 words). \n\nRules:\n1. Start directly with a powerful hook in the first 2 seconds to grab attention.\n2. Use simple, conversational, and punchy language.\n3. Cover ONE clear message or fact only.\n4. End immediately with a quick call to action like 'Follow for more'.\n5. Do NOT include any stage directions, timestamps, music cues, or speaker labels.\n\nCRITICAL RULE (ZERO TOLERANCE): Output ONLY the spoken script text and absolutely nothing else. Do NOT include any introductory or concluding remarks like \"Here is your 30-second script:\", \"Sure, here it is:\", or \"Enjoy the video!\". Your response must start directly with the very first spoken word of the video."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        688,
+        -176
+      ],
+      "id": "e834c8f4-1b2e-4057-9881-aef7a5163604",
+      "name": "Script Writer Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        768,
+        48
+      ],
+      "id": "b5096c24-2b06-4f1e-89d4-e0bec62dc907",
+      "name": "Groq Model 2",
+      "credentials": {
+        "groqApi": {
+          "id": "wqVGa5VaIHCE0F2H",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Generate YouTube SEO metadata for this script: {{ $json.output }}",
+        "options": {
+          "systemMessage": "You are a YouTube SEO expert. Based on the script provided, generate metadata. Output ONLY a valid JSON object with exactly these fields: {\"title\": \"catchy title max 60 characters\", \"description\": \"engaging description max 200 characters with relevant keywords\", \"tags\": [\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\", \"tag6\", \"tag7\", \"tag8\", \"tag9\", \"tag10\"], \"search_keyword\": \"one main keyword for finding stock video\"}. No explanation, no markdown, only the JSON object."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1040,
+        -176
+      ],
+      "id": "b266e502-c4ee-48be-b53c-1ffe34ddf17c",
+      "name": "SEO Metadata Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        48
+      ],
+      "id": "46b7914b-c755-4ab4-9bd4-ebcf90de8392",
+      "name": "Groq Model 3",
+      "credentials": {
+        "groqApi": {
+          "id": "wqVGa5VaIHCE0F2H",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the SEO metadata JSON from the AI output\nconst rawOutput = $input.first().json.output;\n\n// Clean the output - remove markdown code blocks if present\nlet cleaned = rawOutput.replace(/```json/g, '').replace(/```/g, '').trim();\n\n// Find JSON object in the string\nconst jsonMatch = cleaned.match(/\\{[\\s\\S]*\\}/);\nif (!jsonMatch) {\n  throw new Error('No JSON found in AI output: ' + rawOutput);\n}\n\nconst metadata = JSON.parse(jsonMatch[0]);\n\n// Also get data from previous nodes stored in workflow\n// We need to pass data forward\nreturn [\n  {\n    json: {\n      title: metadata.title,\n      description: metadata.description,\n      tags: metadata.tags,\n      search_keyword: metadata.search_keyword,\n      // These will be filled by previous nodes via expressions\n      topic: '',\n      script: ''\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        -176
+      ],
+      "id": "025d617d-b9e3-40ae-ab21-497a184ffe5c",
+      "name": "Parse Metadata"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.pexels.com/videos/search?query={{ $json.search_keyword }}&per_page=1&orientation=portrait&size=medium",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "UHl341b7DBUyhmcScgKdTTY5rzbG4wqtCOrzGg8m4GsfizFFxCqEYxSp"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1616,
+        -176
+      ],
+      "id": "293b32cb-f82d-440c-bace-dc068bbec907",
+      "name": "Fetch Pexels Video"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract video download URL from Pexels response\nconst pexelsData = $input.first().json;\n\nif (!pexelsData.videos || pexelsData.videos.length === 0) {\n  throw new Error('No videos found on Pexels for this keyword');\n}\n\nconst video = pexelsData.videos[0];\n\n// Get the HD video file\nconst videoFiles = video.video_files;\nlet selectedFile = videoFiles.find(f => f.quality === 'hd') || \n                   videoFiles.find(f => f.quality === 'sd') || \n                   videoFiles[0];\n\nreturn [\n  {\n    json: {\n      video_url: selectedFile.link,\n      video_id: video.id,\n      video_width: selectedFile.width,\n      video_height: selectedFile.height,\n      pexels_url: video.url\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1840,
+        -176
+      ],
+      "id": "9b31ef9e-6d24-4d37-a55e-01f49ad324ef",
+      "name": "Extract Video URL"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "sk_f1d57cd37d5cbae95b4fa74befbd408214c57969bd96c75d"
+            },
+            {
+              "name": "Accept",
+              "value": "audio/mpeg"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": {{ JSON.stringify($('Script Writer Agent').item.json.output) }},\n  \"model_id\": \"eleven_flash_v2_5\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2288,
+        -176
+      ],
+      "id": "042429fb-81e1-4ecc-a04d-f612c0c70597",
+      "name": "ElevenLabs TTS"
+    },
+    {
+      "parameters": {
+        "name": "=shorts_audio_{{ $now.format('yyyy-MM-dd') }}.mp3",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1bQvV4J6XUo7wh1HaMkNPifE4dbhKOZfb",
+          "mode": "list",
+          "cachedResultName": "n8n-audios",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1bQvV4J6XUo7wh1HaMkNPifE4dbhKOZfb"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2512,
+        -176
+      ],
+      "id": "232608c3-97ad-4711-96e1-54d7639f53a3",
+      "name": "Save Audio to Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "j9VINW9zfxsfN0xi",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "18Kdg1aO4tH9W2eLitGdPhdp6n22VnrQbP99dHT_J3WU",
+          "mode": "list",
+          "cachedResultName": "youtube shorts upload",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18Kdg1aO4tH9W2eLitGdPhdp6n22VnrQbP99dHT_J3WU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18Kdg1aO4tH9W2eLitGdPhdp6n22VnrQbP99dHT_J3WU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $now.format('yyyy-MM-dd') }}",
+            "Topic": "={{ $('Topic Generator Agent').item.json.output }}",
+            "Script": "={{ $('Script Writer Agent').item.json.output }}",
+            "Audio Link": "={{ $json.webViewLink }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Script",
+              "displayName": "Script",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Audio Link",
+              "displayName": "Audio Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        2736,
+        -176
+      ],
+      "id": "704006a1-2f76-4d7b-9584-c93857c5d239",
+      "name": "Log to Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "akn2w6wiBo8Zl0Rt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.video_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2064,
+        -176
+      ],
+      "id": "3fa110b7-2c53-42e4-8a68-eda66de7a974",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "amount": 100
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3184,
+        -176
+      ],
+      "id": "a4b5f405-803d-4f23-92d3-6cebac0ff451",
+      "name": "Wait",
+      "webhookId": "4ee70f92-4fa6-414d-81ef-c5784279f9fc"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "title": "={{ $('Log to Google Sheets').item.json.Topic }} #shorts",
+        "regionCode": "PK",
+        "categoryId": "22",
+        "options": {
+          "description": "={{ $('Log to Google Sheets').item.json.Script }}",
+          "tags": "AI Art, Artificial Intelligence, Bizarre Art, Mind Blowing, Shorts"
+        }
+      },
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        3632,
+        -176
+      ],
+      "id": "fe8f7de8-5b24-4e04-b422-b98af3dea61c",
+      "name": "Upload a video",
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "o4P25T0QG4VzwyWx",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3408,
+        -176
+      ],
+      "id": "134e46e2-3a9d-402a-9d2e-d5210e3ac446",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.creatomate.com/v2/renders",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"template_id\": \"6f57ee86-e1f5-4381-b5d5-3d3ac153b602\",\n  \"modifications\": {\n    \"Video-4SN.source\": \"{{ $('HTTP Request').item.json.video_url }}\",\n    \"Audio.source\": \"{{ $json['Audio Link'] }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2960,
+        -176
+      ],
+      "id": "72483ca6-4c79-46de-8670-388866c41940",
+      "name": "(Creatomate",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "KIU252ScAS6bbp6H",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "8687061765",
+        "text": "=🚀 𝗡𝗲𝘄 𝗔𝗜 𝗦𝗵𝗼𝗿𝘁 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆 𝗣𝘂𝗯𝗹𝗶𝘀𝗵𝗲𝗱! 🚀\n\n🕒 𝗨𝗽𝗹𝗼𝗮𝗱 𝗧𝗶𝗺𝗲: {{ $now.setZone('Asia/Karachi').toFormat('dd MMM yyyy, hh:mm a') }}\n\n📌 𝗧𝗼𝗽𝗶𝗰:\n{{ $('Topic Generator Agent').item.json.output }}\n\n📜 𝗦𝗰𝗿𝗶𝗽𝘁:\n{{ $('Script Writer Agent').item.json.output }}\n\n🔗 𝗪𝗮𝘁𝗰𝗵 𝗼𝗻 𝗬𝗼𝘂𝗧𝘂𝗯𝗲:\nhttps://youtube.com/shorts/{{ $json.uploadId }}\n\n📁 𝗗𝗿𝗶𝘃𝗲 𝗕𝗮𝗰𝗸𝘂𝗽:\n{{ $('Save Audio to Drive').item.json.webViewLink }}\n\n🤖 Automated via n8n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3856,
+        -176
+      ],
+      "id": "f646629d-9d99-4345-9154-49b168f4860f",
+      "name": "Send a text message",
+      "webhookId": "ae2e2560-6e48-40db-8393-a96c4839615f",
+      "credentials": {
+        "telegramApi": {
+          "id": "o7kofg5xReBJFjIl",
+          "name": "Telegram account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Topic Generator Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Model 1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Topic Generator Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Topic Generator Agent": {
+      "main": [
+        [
+          {
+            "node": "Script Writer Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Model 2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Script Writer Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Script Writer Agent": {
+      "main": [
+        [
+          {
+            "node": "SEO Metadata Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Model 3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "SEO Metadata Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SEO Metadata Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Metadata": {
+      "main": [
+        [
+          {
+            "node": "Fetch Pexels Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Pexels Video": {
+      "main": [
+        [
+          {
+            "node": "Extract Video URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Video URL": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ElevenLabs TTS": {
+      "main": [
+        [
+          {
+            "node": "Save Audio to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Audio to Drive": {
+      "main": [
+        [
+          {
+            "node": "Log to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "ElevenLabs TTS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "(Creatomate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(Creatomate": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Upload a video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload a video": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "7542eca9-5693-416a-8b71-8650dafc8c8f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "49b0fd4703e2ee126914bae736ef3f9086ad22a7d47880f76db665aa7b122c9a"
+  },
+  "nodeGroups": [],
+  "id": "h2JL0FxU41x8Nlmf",
+  "tags": []
+}
